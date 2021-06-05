@@ -3,38 +3,81 @@
  *  Copyright 2021 Savannah Osburn
  */
 
-
 package ex20;
 
 import java.util.Scanner;
 
-/*
-More complex programs may have decisions nested in other decisions, so that when one decision is made, additional decisions must be made.
-
-Create a tax calculator that handles multiple states and multiple counties within each state. The program prompts the user for the order amount and the state where the order will be shipped.
-
-Wisconsin residents must be changed 5% sales tax with an additional county-level charge. For Wisconsin residents, prompt for the county of residence.
-For Eau Claire county residents, add an additional 0.005 tax.
-For Dunn county residents, add an additional 0.004 tax.
-Illinois residents must be charged 8% sales tax with no additional county-level charge.
-All other states are not charged tax.
-The program then displays the tax and the total for Wisconsin and Illinois residents but just the total for everyone else.
-
-Example Output
-What is the order amount? 10
-What state do you live in? Wisconsin
-What county do you live in? Dane
-The tax is $0.50.
-The total is $10.50.
-Constraints
-Ensure that all money is rounded up to the nearest cent.
-Use a single output statement at the end of the program to display the program results.
- */
-
 public class App {
     static Scanner in = new Scanner(System.in);
 
+    public static double WI_TAX = 0.05;
+    public static double EAU_CLAIRE = 0.005;
+    public static double DUNN = 0.004;
+    public static double IL_TAX = 0.08;
+
     public static void main(String[] args) {
         App myApp = new App();
+
+        // Input
+        double orderAmount = Double.parseDouble(myApp.readOrderAmount());
+        String state = myApp.readState();
+
+        // Prompt for county only if resident lives in Wisconsin
+        String county = null;
+        if (state.equals("wisconsin") || state.equals("wi")) {
+            county = myApp.readCounty();
+        }
+
+        // Calculations
+        double tax = myApp.calculateTax(county, state, orderAmount);
+
+        // Output
+        String outputString = myApp.generateOutput(tax, orderAmount, state);
+        myApp.output(outputString);
+    }
+
+    public String readOrderAmount() {
+        System.out.print("What is the order amount? ");
+        return in.nextLine();
+    }
+
+    public String readState() {
+        System.out.print("What state do you live in? ");
+        return in.nextLine().toLowerCase();
+    }
+
+
+    public String readCounty() {
+        System.out.print("What county do you live in? ");
+        return in.nextLine().toLowerCase();
+    }
+
+    public double calculateTax(String county, String state, double price) {
+        double tax = 0;
+
+        if (state.equals("illinois") || state.equals("il")) {
+            tax = IL_TAX;
+        } else if (state.equals("wisconsin") || state.equals("wi")){
+            if (county.equals("eau claire")) {
+                tax = WI_TAX + EAU_CLAIRE;
+            } else if (county.equals("dunn")) {
+                tax = WI_TAX + DUNN;
+            } else {
+                tax = WI_TAX;
+            }
+        }
+
+        return tax * price;
+    }
+
+    public String generateOutput(double tax, double orderAmount, String state) {
+        return (state.equals("wi") || state.equals("il") || state.equals("wisconsin") || state.equals("illinois")) ?
+                String.format("The tax is $%.2f.\nThe total is $%.2f.", tax, orderAmount + tax) :
+                String.format("The total is $%.2f.", orderAmount + tax);
+
+    }
+
+    public void output (String output) {
+        System.out.print(output);
     }
 }
